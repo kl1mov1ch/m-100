@@ -8,3 +8,5 @@ button svg,h2>svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-wi
 .check-label{display:flex!important;align-items:center;gap:10px}.check-label input{width:20px!important;height:20px;min-height:20px!important}
 button{transition:background-color .15s ease,box-shadow .15s ease}button:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+.data-grid td.table-name-cell{min-width:280px;max-width:420px;white-space:normal;overflow-wrap:anywhere;line-height:1.5}.data-grid th.table-name-cell{min-width:280px}.record-title{line-height:1.5}.record-card dd{font-variant-numeric:tabular-nums}
