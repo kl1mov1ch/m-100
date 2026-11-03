@@ -11,6 +11,12 @@ import venv
 import zipfile
 from pathlib import Path
 
+# Windows terminals and CI runners can default to a non-Cyrillic encoding.
+for console in (sys.stdout, sys.stderr):
+    if hasattr(console, "reconfigure"):
+        console.reconfigure(encoding="utf-8", errors="replace")
+os.environ["PYTHONUTF8"] = "1"
+
 ROOT = Path(__file__).resolve().parent
 
 

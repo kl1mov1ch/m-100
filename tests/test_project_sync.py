@@ -177,7 +177,7 @@ def test_crm_queue_survives_restart_and_retry_does_not_duplicate(settings, tmp_p
 def test_crm_configuration_api_is_admin_only_and_never_returns_secret(hub, monkeypatch):
     seen = []
 
-    def connect(webhook, category):
+    def connect(webhook, category, disk=False):
         seen.append((webhook, category))
         return {"configured": True}
 

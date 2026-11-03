@@ -411,6 +411,8 @@ def create_app(
             result = service.import_preview(
                 request[OWNER], data.get("token"), data.get("sheet", 0), data.get("header")
             )
+        elif name == "bitrix":
+            result = await asyncio.to_thread(service.stage_bitrix, request[OWNER], data.get("url"))
         elif name == "google":
             result = await asyncio.to_thread(
                 service.stage_google, request[OWNER], data.get("url"), data.get("sheet")
@@ -558,7 +560,9 @@ def create_app(
             message = "Доступ отключён."
         elif name == "crm_connect":
             service.access.require_admin(owner)
-            await asyncio.to_thread(service.crm.connect, data.get("webhook"), data.get("category", 0))
+            await asyncio.to_thread(
+                service.crm.connect, data.get("webhook"), data.get("category", 0), data.get("disk") is True
+            )
             message = "Битрикс24 подключён. Подтверждённые отчёты из очереди будут отправлены автоматически."
         elif name == "crm_sync":
             service.access.require_admin(owner)

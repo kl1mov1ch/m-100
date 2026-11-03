@@ -18,6 +18,7 @@ from .domain import UserError
 from .gateways import Bitrix24, GoogleSheets, LocalBitrix
 from .recognition import Recognizer
 from .service import Service
+from .sources import public_bitrix
 from .store import Store
 from .tabular import DataTable, TableSheets, bounded, detect_header, read_file, structure
 
@@ -273,7 +274,9 @@ class ServiceHub:
 
     def google_email(self):
         try:
-            return json.loads(Path(self.base.settings.credentials).read_text(encoding="utf-8")).get("client_email", "")
+            return json.loads(Path(self.base.settings.credentials).read_text(encoding="utf-8")).get(
+                "client_email", ""
+            )
         except (OSError, ValueError):
             return ""
 
@@ -296,7 +299,7 @@ class ServiceHub:
                 service.sheets.table.db.close()
         self.access.db.close()
 
-    def stage_import(self, owner, filename, data=None, sheets=None):
+    def stage_import(self, owner, filename, data=None, sheets=None, source=None):
         self.access.require_admin(owner)
         if sheets is None:
             sheets = read_file(filename, data)
@@ -313,7 +316,7 @@ class ServiceHub:
             with path.open("xb") as stream:
                 stream.write(data)
             path.chmod(0o600)
-        payload = {"filename": Path(filename).name, "sheets": sheets}
+        payload = {"filename": Path(filename).name, "sheets": sheets, "source": source or {}}
         with self.access.db:
             self.access.db.execute(
                 "INSERT INTO imports VALUES (?,?,?,?,NULL)",
@@ -341,6 +344,7 @@ class ServiceHub:
         return {
             "token": token,
             "filename": payload["filename"],
+            "source": payload.get("source", {}),
             "sheets": [{"name": s["name"], "rows": len(s["rows"])} for s in payload["sheets"]],
             "sheet": sheet,
             "header": header,
@@ -364,7 +368,9 @@ class ServiceHub:
         table = DataTable(self.base.settings.database.parent / f"project-{key}.sqlite3")
         try:
             table.initialize(
-                sheet["rows"], preview["header"], {"filename": payload["filename"], "sheet": sheet["name"]}
+                sheet["rows"],
+                preview["header"],
+                {"filename": payload["filename"], "sheet": sheet["name"], **payload.get("source", {})},
             )
         finally:
             table.db.close()
@@ -381,15 +387,44 @@ class ServiceHub:
             self.access.select(owner, key)
         return key
 
+    def stage_bitrix(self, owner, url):
+        self.access.require_admin(owner)
+        filename, body, sheets, source = public_bitrix(self.client, url)
+        return self.stage_import(owner, filename, body, sheets, source)
+
     def stage_google(self, owner, url, sheet):
         self.access.require_admin(owner)
         match = re.fullmatch(
             r"https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9_-]{20,150})(?:/[^\s]*)?", str(url).strip()
         )
-        if not match or not str(sheet).strip():
-            raise UserError("Укажите ссылку Google-таблицы и имя листа.")
+        if not match:
+            raise UserError("Укажите ссылку Google-таблицы.")
         settings = replace(self.base.settings, spreadsheet=match[1], sheet=str(sheet).strip())
         gateway = GoogleSheets(settings, self.client)
+        if not str(sheet or "").strip():
+            metadata = gateway.request("GET", "", params={"fields": "sheets.properties,title"})
+            tabs = metadata.get("sheets", [])
+            if not 1 <= len(tabs) <= 25:
+                raise UserError("Подключайте книгу, содержащую от 1 до 25 листов.")
+            sheets = []
+            for tab in tabs:
+                title = tab["properties"]["title"]
+                region = "'" + title.replace("'", "''") + "'"
+                raw = gateway.request(
+                    "GET",
+                    "/values/" + quote(region, safe=""),
+                    params={
+                        "valueRenderOption": "UNFORMATTED_VALUE",
+                        "dateTimeRenderOption": "FORMATTED_STRING",
+                    },
+                )
+                sheets.append({"name": title, "rows": bounded(raw.get("values", []))})
+            return self.stage_import(
+                owner,
+                metadata.get("title", "Google Sheets"),
+                sheets=sheets,
+                source={"provider": "google", "sync": "copy"},
+            )
         region = "'" + settings.sheet.replace("'", "''") + "'"
         raw = gateway.request(
             "GET",

@@ -32,9 +32,12 @@ class CRMConfig:
             if settings.bitrix_url != "/"
             else ("https://" + os.environ["BITRIX_PORTAL_HOST"] if os.getenv("BITRIX_PORTAL_HOST") else ""),
             "category": settings.category,
+            "disk_checked": bool(json.loads(self.path.read_text()).get("disk_checked"))
+            if self.path.exists()
+            else False,
         }
 
-    def connect(self, webhook, category=0):
+    def connect(self, webhook, category=0, disk=False):
         host = os.getenv("BITRIX_PORTAL_HOST") or urlsplit(self.load().bitrix_url).hostname
         if not host and isinstance(webhook, str):
             host = urlsplit(webhook.strip()).hostname
@@ -57,9 +60,15 @@ class CRMConfig:
             categories = gateway.call("crm.dealcategory.list", {}).get("result", [])
             if not any(str(item.get("ID")) == str(settings.category) for item in categories):
                 raise UserError("Выбранная воронка не найдена или недоступна вебхуку.")
+        if disk:
+            fields = gateway.call("disk.file.getFields", {}).get("result", {})
+            if not isinstance(fields, dict) or "ID" not in fields:
+                raise UserError("Не удалось проверить Диск. Добавьте право «Диск» в настройках вебхука.")
         # The destination is pinned to the owner's known portal. Never return the secret.
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        atomic_json(self.path, {"webhook": settings.bitrix_url, "category": settings.category})
+        atomic_json(
+            self.path, {"webhook": settings.bitrix_url, "category": settings.category, "disk_checked": disk}
+        )
         self.path.chmod(0o600)
         return self.status()
 
