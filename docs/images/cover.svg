@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="M-100 — проекты и ежедневная отчётность">
+<defs><linearGradient id="g"><stop stop-color="#0c1736"/><stop offset="1" stop-color="#182958"/></linearGradient></defs>
+<rect width="1200" height="280" rx="24" fill="url(#g)"/>
+<path d="M920 0v280m80-280v280m80-280v280M860 70h340M860 140h340M860 210h340" stroke="#ffffff" stroke-opacity=".06"/>
+<rect x="60" y="58" width="9" height="158" rx="4" fill="#5579ff"/>
+<text x="94" y="120" fill="white" font-family="Arial,sans-serif" font-size="60" font-weight="700">M-100</text>
+<text x="96" y="171" fill="#d5def5" font-family="Arial,sans-serif" font-size="29">Проекты и ежедневная отчётность</text>
+<text x="96" y="211" fill="#91a4cc" font-family="Arial,sans-serif" font-size="19">Таблицы · Команда · Голос · Google Sheets · Битрикс24</text>
+</svg>

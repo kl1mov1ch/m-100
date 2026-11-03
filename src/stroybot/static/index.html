@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d183b">
+  <title>M-100 · Отчёт мастера</title>
+  <link rel="icon" href="/m100-logo.png">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/brand.css">
+  <link rel="stylesheet" href="/compact.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="/search.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/admin.js" defer></script>
+  <script src="/tables.js" defer></script>
+  <script src="/voice.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand"><img class="company-logo" src="/m100-logo.png" alt="M100 — инженерные сети"><div class="brand-caption"><span class="eyebrow">РАБОТЫ И ОБЪЁМЫ</span><strong>Отчёт мастера</strong></div></div>
+      <button class="icon-button" id="refresh" aria-label="Обновить данные">↻</button>
+    </header>
+    <div class="object-line"><span>Объект</span><strong id="project">M-100</strong><span id="connection-state" class="connection-state"></span></div>
+    <div id="project-switcher" class="project-switcher" hidden><label for="select-project">Выбрать объект</label><select id="select-project" aria-label="Объект работы"></select><button id="admin-open" class="text-button" data-page="admin" hidden>Управление</button></div>
+    <div id="busy-status" role="status" hidden>Обновляем данные…</div>
+    <div id="mode-banner" class="mode-banner" hidden></div>
+    <main id="main" aria-live="polite"><div class="loading">Загружаем отчёт…</div></main>
+    <div id="draft-bar" class="draft-bar" hidden><button id="open-draft" class="primary wide"></button></div>
+    <nav class="bottom-nav" aria-label="Основная навигация">
+      <button data-page="today" class="nav-item active"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16m-12 4h3"/></svg><span>Сегодня</span></button>
+      <button data-page="add" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8m-4-4h8"/></svg><span>Добавить</span></button>
+      <button data-page="remaining" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 7 8-4 8 4v10l-8 4-8-4V7Zm0 0 8 4 8-4m-8 4v10m-4-16 8 4"/></svg><span>Остатки</span></button>
+      <button data-page="reports" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Отчёты</span></button>
+    </nav>
+  </div>
+  <dialog id="dialog"><form id="quantity-form"><div class="sheet-handle"></div><div class="sheet-head"><span id="dialog-tag" class="eyebrow">ДОБАВИТЬ РАБОТУ</span><button id="close-dialog" type="button" class="icon-button" aria-label="Закрыть">×</button></div><h2 id="dialog-title"></h2><p id="dialog-meta" class="muted"></p><label class="field-label" for="quantity">Выполненный объём</label><div class="quantity-field"><input id="quantity" name="quantity" type="text" inputmode="decimal" autocomplete="off" required placeholder="0"><span id="quantity-unit"></span></div><p id="dialog-hint" class="hint"></p><button type="submit" id="save-quantity" class="primary wide">Добавить в отчёт</button></form></dialog>
+  <dialog id="record-dialog"><form id="record-form"><div class="sheet-head"><h2 id="record-title">Запись</h2><button type="button" id="record-close" class="icon-button" aria-label="Закрыть запись">×</button></div><div id="record-fields"></div><div class="record-save"><button class="primary" type="submit">Сохранить</button><button class="text-button danger" type="button" id="record-delete" hidden>Удалить запись</button></div></form></dialog>
+  <dialog id="voice-dialog"><div class="voice-content"><div class="sheet-head"><h2>Голосовой ввод</h2><button type="button" id="voice-close" class="icon-button" aria-label="Закрыть голосовой ввод">×</button></div><div class="voice-indicator" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><p id="voice-status" class="note" role="status">Текст появится здесь во время речи.</p><label class="field-label" for="voice-text">Распознанный текст</label><textarea id="voice-text" rows="6" placeholder="Можно говорить или вводить текст вручную"></textarea><div class="voice-actions"><button type="button" class="secondary" id="voice-toggle">Начать запись</button><button type="button" class="primary" id="voice-use">Использовать текст</button></div><p class="note">Промежуточные слова могут меняться. Остановите запись, проверьте результат и используйте его. Данные не записываются автоматически.</p></div></dialog>
+  <div id="toast" role="status" hidden></div>
+</body>
+</html>

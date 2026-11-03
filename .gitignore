@@ -1,0 +1,35 @@
+# Private configuration, uploaded data, local Python and migration backup
+.local/
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+data/
+*.pem
+*.key
+*service-account*.json
+*credentials*.json
+*.sqlite*
+*.db
+*.lock
+!.github/**
+
+# Environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
